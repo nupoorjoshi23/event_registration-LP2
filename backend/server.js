@@ -23,16 +23,17 @@ app.get("/api/health", (req, res) => {
   res.status(200).json({ status: "OK", message: "Server is running" });
 });
 
-// ---------- Serve React Frontend in Production ----------
-if (process.env.NODE_ENV === "production") {
-  // Serve static files from the React build
-  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+// ---------- Serve React Frontend ----------
+// Always serve the build output when present; API routes stay separate.
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
-  // For any route not matched by API, serve the React app
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
-  });
-}
+// For any route not matched by API, serve the React app
+app.get("*", (req, res) => {
+  if (req.path.startsWith("/api")) {
+    return res.status(404).json({ success: false, message: "API route not found" });
+  }
+  return res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
+});
 
 const PORT = process.env.PORT || 5000;
 

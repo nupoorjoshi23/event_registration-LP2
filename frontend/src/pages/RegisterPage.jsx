@@ -15,7 +15,9 @@ import {
 } from "react-icons/io5";
 import "./RegisterPage.css";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_BASE = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
+const buildApiUrl = (path) =>
+  `${API_BASE}${path.startsWith("/") ? path : `/${path}`}`;
 
 const events = [
   "Tech Conference 2026",
@@ -48,7 +50,7 @@ const RegisterPage = () => {
     setLoading(true);
 
     try {
-      const res = await axios.post(`${API_URL}/api/registrations`, formData);
+      const res = await axios.post(buildApiUrl("/api/registrations"), formData);
       if (res.data.success) {
         setSuccess(true);
         toast.success("Registration successful! 🎉");

@@ -14,7 +14,9 @@ import {
 } from "react-icons/io5";
 import "./AdminPage.css";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_BASE = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
+const buildApiUrl = (path) =>
+  `${API_BASE}${path.startsWith("/") ? path : `/${path}`}`;
 
 const AdminPage = () => {
   const [registrations, setRegistrations] = useState([]);
@@ -27,8 +29,8 @@ const AdminPage = () => {
     setLoading(true);
     try {
       const [regRes, statsRes] = await Promise.all([
-        axios.get(`${API_URL}/api/registrations`),
-        axios.get(`${API_URL}/api/registrations/stats`),
+        axios.get(buildApiUrl("/api/registrations")),
+        axios.get(buildApiUrl("/api/registrations/stats")),
       ]);
       setRegistrations(regRes.data.data);
       setStats(statsRes.data.data);
@@ -46,7 +48,7 @@ const AdminPage = () => {
   const handleDelete = async (id, name) => {
     if (!window.confirm(`Delete registration for "${name}"?`)) return;
     try {
-      await axios.delete(`${API_URL}/api/registrations/${id}`);
+      await axios.delete(buildApiUrl(`/api/registrations/${id}`));
       toast.success("Registration deleted");
       fetchData();
     } catch (error) {
